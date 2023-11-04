@@ -68,10 +68,13 @@ export const createOrder = CatchAsyncError(async(req: Request, res: Response, ne
             message: `You have new order from ${course?.name}`,
         });
 
-        if(!course) {
-            return next(new ErrorHandler("Course not found", 404));
-        } else {
-            course.purchased ? (course.purchased += 1) : course?.purchased;
+        // if(!course) {
+        //     return next(new ErrorHandler("Course not found", 404));
+        // } else {
+        //     course.purchased ? (course.purchased += 1) : course?.purchased;
+        // }
+        if(course.purchased) {
+            course.purchased += 1;
         }
 
         await course?.save();

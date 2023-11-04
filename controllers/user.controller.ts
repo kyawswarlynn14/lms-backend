@@ -139,7 +139,7 @@ export const loginUser = CatchAsyncError(async(req: Request, res: Response, next
 
         const isPasswordMatch = await user.comparePassword(password);
         if(!isPasswordMatch) {
-            return next(new ErrorHandler("Invalid email or password", 400));
+            return next(new ErrorHandler("Invalid password", 400));
         };
 
         sendToken(user, 200, res);
@@ -196,10 +196,7 @@ export const updateAccessToken = CatchAsyncError(async(req: Request, res: Respon
 
         await redis.set(user._id, JSON.stringify(user), 'EX', 604800 )
 
-        res.status(200).json({
-            status: "success",
-            accessToken,
-        });
+        next();
 
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 400));
@@ -247,17 +244,9 @@ interface IUpdateUserInfo {
 
 export const updateUserInfo = CatchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
     try{
-        const {name, email} = req.body as IUpdateUserInfo;
+        const {name} = req.body as IUpdateUserInfo;
         const userId = req.user?._id;
         const user = await userModel.findById(userId);
-
-        if(email && user) {
-            const isEmailExist = await userModel.findOne({email});
-            if(isEmailExist) {
-                return next(new ErrorHandler("Email already exist", 400));
-            }
-            user.email = email;
-        }
 
         if(name && user) {
             user.name = name;
